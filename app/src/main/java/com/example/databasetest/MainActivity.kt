@@ -5,7 +5,11 @@ import android.content.ContentValues
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.annotation.ContentView
+import androidx.core.content.contentValuesOf
 import com.example.databasetest.databinding.ActivityMainBinding
+import java.lang.Exception
+import java.lang.NullPointerException
 
 class MainActivity : AppCompatActivity() {
 
@@ -67,6 +71,30 @@ class MainActivity : AppCompatActivity() {
                 } while (cursor.moveToNext())
             }
             cursor.close()
+        }
+
+        binding.replaceData.setOnClickListener {
+            val db = dbHelper.writableDatabase
+            db.beginTransaction() //开启事务
+            try {
+                db.delete("Book", null, null)
+//                if (true) {
+//                    //手动抛出异常，让事务失败
+//                    throw NullPointerException()
+//                }
+                val values = ContentValues().apply {
+                    put("name", "Game of Thrones")
+                    put("author", "George Martin")
+                    put("pages", 720)
+                    put("price", 20.85)
+                }
+                db.insert("Book", null, values)
+                db.setTransactionSuccessful() //事务已执行成功
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                db.endTransaction() //结束事务
+            }
         }
     }
 }
